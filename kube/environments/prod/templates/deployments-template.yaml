@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          volumeMounts:
+            - mountPath: /srv/www
+              name: www-data
+              readOnly: true
+        - name: flask
+          image: gcr.io/{{USER}}/flask-api:{{VERSION}}
+          resources:
+            limits:
+              cpu: 1070m
+              memory: 1000Mi
+            requests:
+              cpu: 10m
+              memory: 100Mi
+          env:
+            - name: DATABASE
+              value: postgres
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-master-db
+                  key: username
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-master-db
+                  key: password
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: session-secret
+                  key: session-secret
+      nodeSelector:
+        cloud.google.com/gke-nodepool: default-pool
+      volumes:
+      - name: www-data
+        emptyDir: {}

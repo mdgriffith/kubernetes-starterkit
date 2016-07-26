@@ -1,0 +1,89 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          volumeMounts:
+            - mountPath: /srv/www
+              name: www-data
+              readOnly: true
+        - name: flask
+          image: flask-api:latest
+          imagePullPolicy: Never
+          volumeMounts:
+            - mountPath: /usr/src/app/
+              name: flask-src
+          env:
+            - name: DATABASE
+              value: database
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: session-secret
+                  key: session-secret
+          ports:
+            - name: tcp
+              protocol: TCP
+              containerPort: 8000
+              hostPort: 80
+
+      volumes:
+        - name: www-data
+          emptyDir: {}
+        - name: flask-src
+          hostPath:
+            path: {{REPLACE_ME_WITH_LOCAL_PATH}}
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: database
+  labels:
+    app: database
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+        - name: postgres
+          image: postgres
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_DB
+              value: database
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+          ports:
+            - containerPort: 5432

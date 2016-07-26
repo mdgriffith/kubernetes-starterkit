@@ -1,0 +1,91 @@
+# Everything needed in production
+
+setuptools==18.5
+wheel==0.26.0
+
+# Flask
+Flask==0.10.1
+MarkupSafe==0.23
+Werkzeug==0.10.4
+Jinja2==2.8
+itsdangerous==0.24
+
+# Database
+Flask-SQLAlchemy==2.1
+SQLAlchemy==1.0.9
+psycopg2==2.6.1
+
+# Migrations
+Flask-Migrate==1.6.0
+
+# Forms
+Flask-WTF==0.12
+WTForms==2.0.2
+
+# Deployment
+gunicorn>=19.1.1
+
+# Assets
+Flask-Assets==0.11
+cssmin>=0.2.0
+jsmin>=2.0.11
+
+# Auth
+# Flask-Login==0.3.2
+Flask-Bcrypt==0.7.1
+Flask-Security==1.7.5
+Flask-Social==1.6.2
+
+# OAuth APIs
+facebook-sdk==0.4.0
+
+# Caching
+Flask-Cache>=0.13.1
+
+# Debug toolbar
+Flask-DebugToolbar==0.10.0
+
+# Celery
+celery==3.1.20
+
+# API
+Flask-RESTful==0.3.5
+flask-marshmallow==0.6.2
+marshmallow-sqlalchemy==0.8.1
+flask-restplus==0.9.0
+webargs==1.2.0
+
+# Push Notifications
+Flask-Pushjack==1.0.0
+pushjack==1.2.1
+
+# Redis
+redis==2.10.5
+
+# Utility to fascilitate python 2 & 3 at the same time
+six==1.10.0
+
+# Documentation generation
+Sphinx==1.3.6
+
+# Sphinx Theme
+sphinx_rtd_theme==0.1.9
+
+# Networking
+requests==2.9.1
+
+# Sphinx plugins
+sphinxcontrib-httpdomain==1.4.0
+
+#Compute Engine
+google-python-cloud-debugger==1.5.0
+gcloud==0.10.1
+
+# Timezone
+timezonefinder==1.5.4
+pytz==2016.3
+
+# Testing
+pytest==2.9.1
+WebTest==2.0.21
+factory_boy==2.6.0

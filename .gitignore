@@ -1,0 +1,4 @@
+
+# These files are unique to every user
+kube/environments/dev/deployments.yaml
+kube/environments/prod/deployments.yaml
