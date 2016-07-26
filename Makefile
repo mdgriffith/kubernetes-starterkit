@@ -7,9 +7,7 @@ setup-dev:
 	database-credentials
 	session-secret
 	(kubectl apply -f kube/environments/dev/deployments.yaml)
-	(kubectl apply -f kube/environments/prod/services.yaml)
-	# Change name based on cluster name in compute console
-
+	(kubectl apply -f kube/environments/dev/services.yaml)
 
 build-dev:
 	# Build Python dependencies image
@@ -27,4 +25,4 @@ database-credentials:
 	sh kube/scripts/create-database-credentials.sh
 
 session-secret:
-	sh kube/scripts/create-session-secret.sh
+	sh kube/scripts/create-session-secret
