@@ -1,5 +1,10 @@
 # Kubernetes StarterKit
-A basic Kubernetes setup for local development and deployment to google cloud
+A basic Kubernetes setup for local development and deployment to google cloud.  
+
+It installs the following:
+  * A basic Python Flask app
+  * Nginx
+  * A Postgres Database
 
 ## Prerequisites
   * Clone this repo to a local dir.
@@ -13,20 +18,28 @@ A basic Kubernetes setup for local development and deployment to google cloud
 
 ## Developing locally
 
-We'll develop locally using `minikube` to run Kubernetes in a local virtual machine.
+Run `make setup-dev` in the base repo folder.  This will start a kubernetes instance locally using minikube, and configure it to run our app.
 
-In the base directory, run `make setup-dev`.  This will install the app in the locally running kubernetes.
+It will ask you to set a database username and password for Postgres.
 
-You can now edit the python code in the `app` folder and it will automatically be reloaded on save.
+Once this is running, use `minikube ip` to see what IP address it's running on.
 
-Some Useful Commands
+The __app__ directory is mounted inside the kubernetes pod, so you can modify the python code and changes will automatically be reloaded in the local kubernetes instance.
+
+
+
+## Some Useful Commands
 
 Command                | Description
 ------------------------------------------
 `minikube ip`          | See the Ip that minikube is running on locally.
 `minikube stop`        | Stop the minikube (does not delete app)
 `minikube dashboard`   | Get the address of the Kubernetes Dashboard for local.
-`make dev-logs`        | View the logs of our app
+`make stream-logs-dev` | Stream the app(specifically Pyhton/flask) logs to the terminal
+
+## Browsing the Database
+
+[PgAdmin](https://www.pgadmin.org/) can be used as a database explorer.  When running locally, the database is accessible through the minikube ip address on port 5432.
 
 
 ### TODO

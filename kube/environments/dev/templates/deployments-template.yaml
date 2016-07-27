@@ -86,4 +86,7 @@ spec:
                   name: postgres-credentials
                   key: password
           ports:
-            - containerPort: 5432
+            - name: tcp
+              protocol: TCP
+              containerPort: 5432
+              hostPort: 5432
