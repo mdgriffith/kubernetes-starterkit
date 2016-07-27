@@ -11,11 +11,19 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx
+          image: nginx-static-proxy:latest
           volumeMounts:
-            - mountPath: /srv/www
-              name: www-data
-              readOnly: true
+            - mountPath: /etc/nginx/html/
+              name: static-serve-dir
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: 80
+              hostPort: 80
+            - name: https
+              protocol: TCP
+              containerPort: 443
+              hostPort: 443
         - name: flask
           image: flask-api:dev
           imagePullPolicy: Never
@@ -44,14 +52,16 @@ spec:
             - name: tcp
               protocol: TCP
               containerPort: 8000
-              hostPort: 80
 
       volumes:
         - name: www-data
           emptyDir: {}
+        - name: static-serve-dir
+          hostPath:
+            path: {{REPLACE_ME_WITH_LOCAL_PATH}}/app/nginx/serve/
         - name: flask-src
           hostPath:
-            path: {{REPLACE_ME_WITH_LOCAL_PATH}}
+            path: {{REPLACE_ME_WITH_LOCAL_PATH}}/app/api/
 
 ---
 apiVersion: extensions/v1beta1

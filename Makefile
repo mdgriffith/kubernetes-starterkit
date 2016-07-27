@@ -16,12 +16,6 @@ start-dev:
 apply-dev:
 	sh kube/scripts/apply-dev.sh
 
-stream-logs-dev:
-	echo "not implemented"
-
-inspect-db-dev:
-	echo "not implemented"
-
 deploy:
 	echo "Whoops, this hasn't been set up yet."
 	echo "Edit the deploy section of the Makefile."
