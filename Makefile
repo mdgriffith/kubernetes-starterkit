@@ -1,19 +1,20 @@
 
-setup-dev:
-	(sed "s|{{REPLACE_ME_WITH_LOCAL_PATH}}|$PWD/app/|" kube/environments/dev/templates/deployments-template.yaml > kube/environments/dev/deployments.yaml)
-	(minikube start)
-	(kubectl config use-context minikube)
-	build-dev
-	database-credentials
-	session-secret
-	(kubectl apply -f kube/environments/dev/deployments.yaml)
-	(kubectl apply -f kube/environments/dev/services.yaml)
+setup-dev: start-dev build-dev database-credentials session-secret apply-dev
 
+# Build the docker images inside of minikube.
+# Can be used to rebuild if image is failing.
 build-dev:
-	# Build Python dependencies image
-	(cd app;cp docker/dependencies.Dockerfile Dockerfile;docker build -t python-dependencies:2.7 .;rm Dockerfile)
-	# Build API image
-	(cd app;cp docker/dev.Dockerfile Dockerfile;docker build -t flask-api:latest .;rm Dockerfile)
+	sh kube/scripts/build-images-dev.sh
+
+# Start up minikube for local development
+# and tell kubectl to focus on minikube.
+start-dev:
+	minikube start
+	kubectl config use-context minikube
+
+# Apply dev kubernetes environment
+apply-dev:
+	sh kube/scripts/apply-dev.sh
 
 deploy:
 	echo "Whoops, this hasn't been set up yet."
@@ -25,4 +26,4 @@ database-credentials:
 	sh kube/scripts/create-database-credentials.sh
 
 session-secret:
-	sh kube/scripts/create-session-secret
+	sh kube/scripts/create-session-secret.sh

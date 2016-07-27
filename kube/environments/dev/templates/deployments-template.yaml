@@ -17,7 +17,7 @@ spec:
               name: www-data
               readOnly: true
         - name: flask
-          image: flask-api:latest
+          image: flask-api:dev
           imagePullPolicy: Never
           volumeMounts:
             - mountPath: /usr/src/app/
