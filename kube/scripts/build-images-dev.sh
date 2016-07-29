@@ -14,8 +14,7 @@ docker build -t flask-api:dev .
 rm Dockerfile
 cd ../..
 
-
 # Build Nginx
 cd app/nginx/
-docker build -t nginx-static-proxy:latest .
+docker build -t nginx-proxy:latest .
 cd ../..

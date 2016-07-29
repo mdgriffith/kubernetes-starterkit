@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx-static-proxy:latest
+          image: nginx-proxy:latest
           volumeMounts:
             - mountPath: /etc/nginx/html/
               name: static-serve-dir

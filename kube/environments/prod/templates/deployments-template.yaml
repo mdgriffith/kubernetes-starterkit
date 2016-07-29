@@ -12,19 +12,8 @@ spec:
       containers:
         - name: nginx
           image: nginx
-          volumeMounts:
-            - mountPath: /srv/www
-              name: www-data
-              readOnly: true
         - name: flask
           image: gcr.io/{{USER}}/flask-api:{{VERSION}}
-          resources:
-            limits:
-              cpu: 1070m
-              memory: 1000Mi
-            requests:
-              cpu: 10m
-              memory: 100Mi
           env:
             - name: DATABASE
               value: postgres
@@ -43,8 +32,3 @@ spec:
                 secretKeyRef:
                   name: session-secret
                   key: session-secret
-      nodeSelector:
-        cloud.google.com/gke-nodepool: default-pool
-      volumes:
-      - name: www-data
-        emptyDir: {}
