@@ -31,7 +31,7 @@ spec:
             - mountPath: /usr/src/app/
               name: flask-src
           env:
-            - name: DATABASE
+            - name: POSTGRES_DATABASE
               value: database
             - name: POSTGRES_USER
               valueFrom:
