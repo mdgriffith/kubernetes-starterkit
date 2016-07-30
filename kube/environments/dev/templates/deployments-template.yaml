@@ -31,14 +31,14 @@ spec:
             - mountPath: /usr/src/app/
               name: flask-src
           env:
-            - name: DATABASE
+            - name: POSTGRES_DATABASE
               value: database
-            - name: DB_USER
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: postgres-credentials
                   key: username
-            - name: DB_PASS
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-credentials
