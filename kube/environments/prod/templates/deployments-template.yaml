@@ -17,12 +17,12 @@ spec:
           env:
             - name: DATABASE
               value: postgres
-            - name: DB_USER
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: postgres-master-db
                   key: username
-            - name: DB_PASS
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-master-db
