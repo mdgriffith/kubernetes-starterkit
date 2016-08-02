@@ -30,7 +30,7 @@ def test_database():
         POSTGRES_HOST = "postgres",
         POSTGRES_PORT = "5432"
     )
-    print config
+    print(config)
     connection = psycopg2.connect(database=config['POSTGRES_DATABASE'], user=config['POSTGRES_USER'], password=config['POSTGRES_PASSWORD'], host=config['POSTGRES_HOST'], port=config['POSTGRES_PORT'])
     cursor = connection.cursor()
     if not table_exists(cursor, "vegetables"):
@@ -42,7 +42,6 @@ def test_database():
     return "Here's a value I got from the database: " + str(vegetable)
 
 
-
 # @app.route("/test-database")
 # def test_database():
 #     cursor.execute("SELECT name FROM vegetables;")
@@ -51,7 +50,7 @@ def test_database():
 
 
 def create_test_table(cursor):
-    print "loading test data"
+    print("loading test data")
     cursor.execute("CREATE TABLE vegetables (id serial PRIMARY KEY, rating integer, name varchar);")
     cursor.execute("INSERT INTO vegetables (rating, name) VALUES (%s, %s)", (72, "Zucchini"))
     # connection.commit()
