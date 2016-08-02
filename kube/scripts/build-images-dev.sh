@@ -16,5 +16,5 @@ cd ../..
 
 # Build Nginx
 cd app/nginx/
-docker build -t nginx-proxy:latest .
+docker build -t nginx-static-proxy:latest .
 cd ../..

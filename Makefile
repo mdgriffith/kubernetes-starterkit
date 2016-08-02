@@ -10,10 +10,9 @@ focus-dev:
 	kubectl config use-context minikube
 
 # Build the docker images inside of minikube.
-# It forces the images to be redeployed as well.
 build-dev: focus-dev
 	sh kube/scripts/build-images-dev.sh
-	kubectl replace --force -f kube/environments/dev/deployments.yaml
+	# kubectl replace --force -f kube/environments/dev/deployments.yaml
 
 # Apply dev kubernetes environment
 refresh-dev: focus-dev
