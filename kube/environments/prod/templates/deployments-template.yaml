@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx
+          image: gcr.io/{{USER}}/nginx-static-proxy:{{VERSION}}
         - name: flask
           image: gcr.io/{{USER}}/flask-api:{{VERSION}}
           env:

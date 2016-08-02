@@ -11,7 +11,8 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx-proxy:latest
+          image: nginx-static-proxy:latest
+          imagePullPolicy: Never
           volumeMounts:
             - mountPath: /etc/nginx/html/
               name: static-serve-dir
@@ -54,8 +55,6 @@ spec:
               containerPort: 8000
 
       volumes:
-        - name: www-data
-          emptyDir: {}
         - name: static-serve-dir
           hostPath:
             path: {{REPLACE_ME_WITH_LOCAL_PATH}}/app/nginx/serve/

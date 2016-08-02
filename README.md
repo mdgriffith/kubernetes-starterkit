@@ -31,11 +31,12 @@ The __app__ directory is mounted inside the kubernetes pod, so you can modify th
 ## Some Useful Commands
 
 Command                | Description
-------------------------------------------
+-----------------------|------------------
 `minikube ip`          | See the Ip that minikube is running on locally.
 `minikube stop`        | Stop the minikube (does not delete app)
 `minikube dashboard`   | Get the address of the Kubernetes Dashboard for local.
 `make stream-logs-dev` | Stream the app(specifically Pyhton/flask) logs to the terminal
+`kubectl`
 
 ## Browsing the Database
 
