@@ -7,13 +7,11 @@ It installs the following:
   * A Postgres Database
 
 ## Prerequisites
+
   * Clone this repo to a local dir.
-  * Install [kubectl](http://kubernetes.io/docs/user-guide/prereqs/)
-    _A command line utility for managing a kubernetes cluster_
-  * Install [minikube](https://github.com/kubernetes/minikube)
-    _Run kubernetes locally_
-  * Install [Google Cloud SDK](https://cloud.google.com/sdk/)
-    (If you want to deploy to google)
+  * Install [kubectl](http://kubernetes.io/docs/user-guide/prereqs/) _(A command line utility for managing a kubernetes cluster)_
+  * Install [minikube](https://github.com/kubernetes/minikube) _(for running kubernetes locally)_
+  * Install [Google Cloud SDK](https://cloud.google.com/sdk/) _(If you want to deploy to google container engine)_
 
 
 ## Developing locally
@@ -24,8 +22,9 @@ It will ask you to set a database username and password for Postgres.
 
 Once this is running, use `minikube ip` to see what IP address it's running on.
 
-The __app__ directory is mounted inside the kubernetes pod, so you can modify the python code and changes will automatically be reloaded in the local kubernetes instance.
+The __app/api__ directory is mounted inside the Kubernetes pod, so you can modify the python code and changes will automatically be reloaded in the local Kubernetes instance.
 
+Same with the __app/nginx/serve__ drectory.  Adding files to that folder will serve them through the `static/` folder.
 
 
 ## Some Useful Commands
@@ -34,17 +33,22 @@ Command                | Description
 -----------------------|------------------
 `minikube ip`          | See the Ip that minikube is running on locally.
 `minikube stop`        | Stop the minikube (does not delete app)
+`minikube delete`      | Delete local kubernetes instance
 `minikube dashboard`   | Get the address of the Kubernetes Dashboard for local.
-`make stream-logs-dev` | Stream the app(specifically Pyhton/flask) logs to the terminal
-`kubectl`
+`make setup-dev`       | Install a dev environment locally.  You should only need to do this once.
+`make stream-logs-dev` | Stream the app(specifically Python/flask) logs to the terminal
+
 
 ## Browsing the Database
 
-[PgAdmin](https://www.pgadmin.org/) can be used as a database explorer.  When running locally, the database is accessible through the minikube ip address on port 5432.
+[PgAdmin](https://www.pgadmin.org/) can be used as a database explorer.  
 
+When running locally, the local database is accessible with the following information_schema:
+ * _Host_ - 192.168.99.100 (or whatever the command `minikube ip` returns)
+ * _Port_ - 32000
+ * _Service_ - __blank__
+ * _Username_ - Whatever username you specified when setting up.
+ * _Password_ - Whatever password you specified when setting up.
 
-### TODO
-  * Inspect database
-  * Run database migration
 
 ## Deploying To Google Container Engine

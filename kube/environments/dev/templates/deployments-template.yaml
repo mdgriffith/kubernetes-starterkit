@@ -33,7 +33,7 @@ spec:
               name: flask-src
           env:
             - name: POSTGRES_DATABASE
-              value: database
+              value: postgres
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
@@ -83,7 +83,7 @@ spec:
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
             - name: POSTGRES_DB
-              value: database
+              value: postgres
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
