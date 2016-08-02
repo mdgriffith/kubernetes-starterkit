@@ -1,4 +1,4 @@
-FROM python-dependencies:2.7
+FROM python-dependencies:3.5
 
 ENV DEBUG="False"
 ENV DB_NAME=postgres

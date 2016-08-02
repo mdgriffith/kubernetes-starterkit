@@ -5,7 +5,7 @@ eval $(minikube docker-env)
 # Build Python dependencies image
 cd app/api/
 cp docker/dependencies.Dockerfile Dockerfile
-docker build -t python-dependencies:2.7 .
+docker build -t python-dependencies:3.5 .
 rm Dockerfile
 
 # Build API image
