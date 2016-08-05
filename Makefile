@@ -11,14 +11,17 @@ focus-dev:
 
 # Build the docker images inside of minikube.
 build-dev: focus-dev
-	sh kube/scripts/build-images-dev.sh
-	# kubectl replace --force -f kube/environments/dev/deployments.yaml
+	(eval $$(minikube docker-env); cd app; make build)
 
 # Apply dev kubernetes environment
 refresh-dev: focus-dev
 	sh kube/scripts/refresh-dev.sh
 
 # ------------- The following commands only apply to Production ----------------
+
+test-var:
+	(eval $$(minikube docker-env); eval $$(kube/scripts/set-version.sh); cd app; make print-vars)
+
 
 setup-prod: focus-prod create-database-credentials create-session-secret deploy
 
@@ -33,9 +36,15 @@ deploy: focus-prod
 	echo "Whoops, this hasn't been set up yet."
 	echo "Edit the deploy section of the Makefile."
 	echo "Set a google container engine user name, and a google context to deploy to."
-	# sh kube/scripts/deploy.sh google_user_name
+	# # First create the environment we want, then build
+	# (eval $$(minikube docker-env);\
+	#  eval $$(kube/scripts/set-version.sh);\
+	#  eval $$(kube/scripts/set-user.sh);\
+	#  cd app; make build)
+	# # sh kube/scripts/deploy.sh google_user_name
 
 refresh-prod: focus-prod
+	echo "Not Implemented Yet!"
 	# sh kube/scripts/refresh-prod.sh google_user_name
 
 # Request an ssl certificate from letsencrypt
@@ -46,7 +55,13 @@ request-ssl: focus-prod
 request-ssl-monthly: focus-prod
 	echo "Not Implemented Yet!"
 
-
+# Report the current status of the ssl certificate.
+# Statuses include:
+#  * No Certificate
+#  * Valid Certificate Present
+#  * Valid Certificate Present, Renewal scheduled on XYZ
+ssl-status: focus-prod
+	echo "Not Implemented Yet!"
 
 # ------------- The following apply to any environment ----------------
 

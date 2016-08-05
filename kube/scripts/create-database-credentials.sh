@@ -3,8 +3,8 @@
 # then creates a kubernetes secret using those values
 
 echo "Postgres username?"
-read username
+read -s username
 echo "Postgres password?"
-read password
+read -s password
 
 eval "kubectl create secret generic postgres-credentials --from-literal=username=$username --from-literal=password=$password"

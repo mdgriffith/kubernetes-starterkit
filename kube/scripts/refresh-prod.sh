@@ -1,7 +1,6 @@
-# Apply the kubernetes files with touching the images.
 
-user=$1
-version="$(git describe --abbrev=0 --tags)"
+user=$STARTERKIT_GOOGLE_USERNAME
+version=$STARTERKIT_VERSION
 
 sed "s|{{USER}}|$user|;s|{{VERSION}}|$version|" kube/environments/prod/templates/deployments-template.yaml > kube/environments/prod/deployments.yaml
 
