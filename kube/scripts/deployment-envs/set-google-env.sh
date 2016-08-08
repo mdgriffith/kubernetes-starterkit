@@ -1,4 +1,4 @@
 eval $(minikube docker-env);
-export STARTERKIT_IMAGE_REPO=gcr.io/my-google-project/;
+export STARTERKIT_IMAGE_REPO=gcr.io/lunar-alpha-93213/;
 export STARTERKIT_CURRENT_VERSION=latest;
-eval $(kube/scripts/deployment-envs/utils/set-version.sh);
+source kube/scripts/deployment-envs/utils/set-version.sh
