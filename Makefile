@@ -9,18 +9,19 @@ start-dev:
 create-dev-secrets:
 	(source kube/scripts/deployment-envs/set-dev-env.sh;\
 	 sh kube/scripts/create-database-credentials.sh;\
-	 sh kube/scripts/create-session-secret.sh;
-	 )
+	 sh kube/scripts/create-session-secret.sh;)
 
 # Build the docker images inside of minikube.
 build-dev:
 	(source kube/scripts/deployment-envs/set-dev-env.sh;\
+	 sed "s|{{REPLACE_ME_WITH_LOCAL_PATH}}|$PWD|" kube/environments/dev/templates/deployments-template.yaml > kube/environments/dev/deployments.yaml;\
 	 cd app; make setup;)
 
 # Apply dev kubernetes environment
 refresh-dev:
 	(source kube/scripts/deployment-envs/set-dev-env.sh;\
-	 sh kube/scripts/refresh-dev.sh;)
+	 kubectl apply -f kube/environments/dev/deployments.yaml;\
+	 kubectl apply -f kube/environments/dev/services.yaml;)
 
 # ------------- The following commands only apply to Production ----------------
 
@@ -36,7 +37,14 @@ create-prod-secrets:
 deploy:
 	(source kube/scripts/deployment-envs/set-google-env.sh;\
 	 source kube/scripts/deployment-envs/utils/set-version.sh;\
-	 cd app; make build; make push-gcloud; sh kube/scripts/refresh-prod.sh;)
+	 cd kube/environments/prod/;\
+	 sed "s|{{USER}}|$STARTERKIT_IMAGE_REPO|;s|{{VERSION}}|$STARTERKIT_CURRENT_VERSION|" templates/deployments-template.yaml > deployments.yaml;\
+	 cd ../../../;\
+	 cd app; make build; make push-gcloud;\
+	 kubectl apply -f kube/environments/prod/deployments.yaml;\
+	 kubectl apply -f kube/environments/prod/database.yaml;\
+	 kubectl apply -f kube/environments/prod/services.yaml;
+	 )
 
 # Request an ssl certificate from letsencrypt
 request-ssl:
