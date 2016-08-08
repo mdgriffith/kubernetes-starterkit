@@ -15,15 +15,16 @@ create-dev-secrets:
 # Build the docker images inside of minikube.
 build-dev:
 	(source kube/scripts/deployment-envs/set-dev-env.sh;\
-	 cd app; make setup; )
+	 cd app; make setup;)
 
 # Apply dev kubernetes environment
 refresh-dev:
-	sh kube/scripts/refresh-dev.sh
+	(source kube/scripts/deployment-envs/set-dev-env.sh;\
+	 sh kube/scripts/refresh-dev.sh;)
 
 # ------------- The following commands only apply to Production ----------------
 
-setup-prod: create-database-credentials create-session-secret deploy
+setup-prod: create-prod-secrets deploy
 
 create-prod-secrets:
 	(source kube/scripts/deployment-envs/set-google-env.sh;\
