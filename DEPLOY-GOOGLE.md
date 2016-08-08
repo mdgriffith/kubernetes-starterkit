@@ -1,3 +1,6 @@
+# WARNING, this guide is untested yet.
+
+
 # Deploying to Google Container engine
 First, have a working local setup as covered by the README.
 
@@ -42,4 +45,21 @@ Using gcloud, create a new cluster using the following:
 
 Where machine-types are [listed here](https://cloud.google.com/compute/docs/machine-types) and [regions are listed here](https://cloud.google.com/compute/docs/regions-zones/regions-zones).  The number of nodes, is how many machines you want in use.
 
-#  
+
+# Point Kubectl at Your New Cluster
+
+Open the following file:
+
+`/kube/scripts/deployment-envs/set-google-env.sh`
+
+You need to replace `my-google-project` with your  google project name.
+
+And replace `context_to_deploy_to` to the google context for your cluster.  You can see your contexts by running `gcloud config view`.
+
+# Finally, Deploy.
+
+First, commit all changes to your git.  Part of the deployment process is to tag which commit is being deployed.
+
+Then run:
+
+`make deploy`
