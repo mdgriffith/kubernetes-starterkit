@@ -1,6 +1,6 @@
 
-user=$STARTERKIT_GOOGLE_USERNAME
-version=$STARTERKIT_VERSION
+user=$STARTERKIT_IMAGE_REPO
+version=$STARTERKIT_CURRENT_VERSION
 
 sed "s|{{USER}}|$user|;s|{{VERSION}}|$version|" kube/environments/prod/templates/deployments-template.yaml > kube/environments/prod/deployments.yaml
 

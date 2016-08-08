@@ -35,9 +35,7 @@ focus-prod:
 # First create the environment we want, then build
 deploy:
 	(source kube/scripts/deployment-envs/set-google-env.sh;\
-	 source $$(kube/scripts/deployment-envs/utils/set-version.sh);\
-	 cd app; make print-vars;)
-	#  cd app; make build; make push-gcloud;)#source kube/scripts/set-version.sh;\
+	 cd app; make build; make push-gcloud; sh kube/scripts/refresh-prod.sh;)
 
 
 refresh-prod: focus-prod

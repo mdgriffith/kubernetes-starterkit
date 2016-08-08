@@ -2,16 +2,16 @@
 
 # There are uncommitted changes
 if ! git diff-index --quiet HEAD --; then
-    echo "# There are uncommitted changes.  Commit them and run deploy again."
+    echo "There are uncommitted changes.  Commit them and run deploy again."
     exit 1
 fi
 if git describe --abbrev=0 --tags; then
-    printf "# Last version released was "
+    printf "Last version released was "
     git describe --abbrev=0 --tags
 else
-    echo "# There are no previous releases"
+    echo "There are no previous releases"
 fi
-echo "# What version number should be used for this release? "
+echo "What version number should be used for this release? "
 read version
 
 if [[ -z "$version" ]]; then
@@ -23,4 +23,4 @@ fi
 git tag -a $version -m "$version release"
 git push --tags
 
-echo "export STARTERKIT_CURRENT_VERSION=$version"
+export STARTERKIT_CURRENT_VERSION=$version
