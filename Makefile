@@ -11,7 +11,8 @@ focus-dev:
 
 # Build the docker images inside of minikube.
 build-dev: focus-dev
-	(eval $$(minikube docker-env); cd app; make build)
+	(source kube/scripts/deployment-envs/set-dev-env.sh;\
+	 cd app; make setup)
 
 # Apply dev kubernetes environment
 refresh-dev: focus-dev
@@ -20,8 +21,7 @@ refresh-dev: focus-dev
 # ------------- The following commands only apply to Production ----------------
 
 test-var:
-	(eval $$(minikube docker-env); eval $$(kube/scripts/set-version.sh); cd app; make print-vars)
-
+	(source kube/scripts/deployment-envs/set-dev-env.sh; cd app; make print-vars)
 
 setup-prod: focus-prod create-database-credentials create-session-secret deploy
 
@@ -32,16 +32,13 @@ focus-prod:
 	# kubectl config use-context context_to_deploy_to
 
 # Builds images with correct tags and applies the kube config files.
-deploy: focus-prod
-	echo "Whoops, this hasn't been set up yet."
-	echo "Edit the deploy section of the Makefile."
-	echo "Set a google container engine user name, and a google context to deploy to."
-	# # First create the environment we want, then build
-	# (eval $$(minikube docker-env);\
-	#  eval $$(kube/scripts/set-version.sh);\
-	#  eval $$(kube/scripts/set-user.sh);\
-	#  cd app; make build)
-	# # sh kube/scripts/deploy.sh google_user_name
+# First create the environment we want, then build
+deploy:
+	(source kube/scripts/deployment-envs/set-google-env.sh;\
+	 source $$(kube/scripts/deployment-envs/utils/set-version.sh);\
+	 cd app; make print-vars;)
+	#  cd app; make build; make push-gcloud;)#source kube/scripts/set-version.sh;\
+
 
 refresh-prod: focus-prod
 	echo "Not Implemented Yet!"

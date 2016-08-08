@@ -52,3 +52,4 @@ When running locally, the local database is accessible with the following inform
 
 
 ## Deploying To Google Container Engine
+Check out the DEPLOY-GOOGLE.md file for instructions.
