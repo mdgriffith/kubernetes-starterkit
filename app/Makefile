@@ -1,11 +1,15 @@
 
-setup: build-nginx build-api-dependencies build-api
+setup: build-nginx build-letsencrypt build-api-dependencies build-api
 
 build: build-nginx build-api
 
 build-nginx:
 	(cd nginx;\
 	eval "docker build -t $(STARTERKIT_IMAGE_REPO)nginx-static-proxy:$(STARTERKIT_CURRENT_VERSION) .";)
+
+build-letsencrypt:
+	(cd letsencrypt;\
+	eval "docker build -t $(STARTERKIT_IMAGE_REPO)letsencrypt-companion:$(STARTERKIT_CURRENT_VERSION) .";)
 
 build-api:
 	(cd api; cp docker/dev.Dockerfile Dockerfile;\
@@ -20,8 +24,6 @@ print-vars:
 	(echo $(STARTERKIT_IMAGE_REPO))
 	(echo $(DOCKER_HOST))
 	(echo "$(STARTERKIT_IMAGE_REPO)api:$(STARTERKIT_CURRENT_VERSION)")
-
-
 
 push-gcloud:
 	(eval "gcloud docker push $(STARTERKIT_IMAGE_REPO)flask-api:$(STARTERKIT_CURRENT_VERSION)")

@@ -5,11 +5,11 @@ metadata:
 spec:
   ports:
   - port: 80
-    targetPort: 8000
+    targetPort: 80
     name: "http"
     protocol: TCP
   - port: 443
-    targetPort: 4430
+    targetPort: 443
     name: "https"
     protocol: TCP
   selector:

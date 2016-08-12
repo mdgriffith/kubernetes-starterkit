@@ -30,21 +30,19 @@ setup-prod: create-prod-secrets deploy
 create-prod-secrets:
 	(source kube/scripts/deployment-envs/set-google-env.sh;\
 	 sh kube/scripts/create-database-credentials.sh;\
-	 sh kube/scripts/create-session-secret.sh;
-	 )
+	 sh kube/scripts/create-session-secret.sh;)
 
 # Builds images with correct tags and applies the kube config files.
 deploy:
 	(source kube/scripts/deployment-envs/set-google-env.sh;\
 	 source kube/scripts/deployment-envs/utils/set-version.sh;\
-	 cd kube/environments/prod/;\
-	 sed "s|{{USER}}|$STARTERKIT_IMAGE_REPO|;s|{{VERSION}}|$STARTERKIT_CURRENT_VERSION|" templates/deployments-template.yaml > deployments.yaml;\
-	 cd ../../../;\
 	 cd app; make build; make push-gcloud;\
+	 cd kube/environments/prod/;\
+	 sed "s|{{IMAGE_REPO}}|$STARTERKIT_IMAGE_REPO|;s|{{CURRENT_VERSION}}|$STARTERKIT_CURRENT_VERSION|" templates/deployments-template.yaml > deployments.yaml;\
+	 cd ../../../;\
 	 kubectl apply -f kube/environments/prod/deployments.yaml;\
 	 kubectl apply -f kube/environments/prod/database.yaml;\
-	 kubectl apply -f kube/environments/prod/services.yaml;
-	 )
+	 kubectl apply -f kube/environments/prod/services.yaml;)
 
 # Request an ssl certificate from letsencrypt
 request-ssl:
@@ -59,5 +57,5 @@ request-ssl-monthly:
 #  * No Certificate
 #  * Valid Certificate Present
 #  * Valid Certificate Present, Renewal scheduled on XYZ
-ssl-status: focus-prod
+ssl-status:
 	echo "Not Implemented Yet!"

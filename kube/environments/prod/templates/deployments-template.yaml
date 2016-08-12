@@ -11,9 +11,34 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: gcr.io/{{USER}}/nginx-static-proxy:{{VERSION}}
+          image: {{IMAGE_REPO}}nginx-static-proxy:{{CURRENT_VERSION}}
+          volumeMounts:
+            - mountPath: /etc/nginx/letsencrypt/
+              name: letsencrypt-certificates
+              readOnly: true
+            - mountPath: /letsencrypt/challenges/.well-known/acme-challenge/
+              name: acme-challenge
+              readOnly: true
+        - name: letsencrypt
+          image: {{IMAGE_REPO}}letsencrypt-companion:{{CURRENT_VERSION}}
+          volumeMounts:
+            - mountPath: /letsencrypt/challenges/.well-known/acme-challenge/
+              name: acme-challenge
+          env:
+            - name: EMAIL
+              value: MYEMAIL@EMAIL.COM
+            - name: DOMAINS
+              value: MYDOMAIN.COM
+            - name: ACCEPT_TOS
+              value: yes
+            - name: LETSENCRYPT_ENDPOINT
+              value: https://acme-staging.api.letsencrypt.org/directory
+            - name: SECRET_NAME
+              value: letsencrypt-certificates
+            - name: RENEWAL_FREQUENCY
+              value: 0 0 1 * *
         - name: flask
-          image: gcr.io/{{USER}}/flask-api:{{VERSION}}
+          image: {{IMAGE_REPO}}flask-api:{{CURRENT_VERSION}}
           env:
             - name: DATABASE
               value: postgres
@@ -32,3 +57,9 @@ spec:
                 secretKeyRef:
                   name: session-secret
                   key: session-secret
+      volumes:
+        - name: letsencrypt-certificates
+          secret:
+              secretName: letsencrypt-certificates
+        - name: acme-challenge
+          emptyDir: {}
