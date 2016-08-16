@@ -1,5 +1,5 @@
 
-setup: build-nginx build-letsencrypt build-api-dependencies build-api
+setup: build-nginx build-api-dependencies build-api
 
 build: build-nginx build-api
 

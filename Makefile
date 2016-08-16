@@ -14,7 +14,7 @@ create-dev-secrets:
 # Build the docker images inside of minikube.
 build-dev:
 	(source kube/scripts/deployment-envs/set-dev-env.sh;\
-	 sed "s|{{REPLACE_ME_WITH_LOCAL_PATH}}|$PWD|" kube/environments/dev/templates/deployments-template.yaml > kube/environments/dev/deployments.yaml;\
+	 sed "s|{{REPLACE_ME_WITH_LOCAL_PATH}}|${PWD}|" kube/environments/dev/templates/deployments-template.yaml > kube/environments/dev/deployments.yaml;\
 	 cd app; make setup;)
 
 # Apply dev kubernetes environment
@@ -36,13 +36,13 @@ create-prod-secrets:
 deploy:
 	(source kube/scripts/deployment-envs/set-google-env.sh;\
 	 source kube/scripts/deployment-envs/utils/set-version.sh;\
-	 cd app; make build; make push-gcloud;\
+	 cd app; make build; make push-gcloud; cd ..;\
 	 cd kube/environments/prod/;\
-	 sed "s|{{IMAGE_REPO}}|$STARTERKIT_IMAGE_REPO|;s|{{CURRENT_VERSION}}|$STARTERKIT_CURRENT_VERSION|" templates/deployments-template.yaml > deployments.yaml;\
-	 cd ../../../;\
-	 kubectl apply -f kube/environments/prod/deployments.yaml;\
-	 kubectl apply -f kube/environments/prod/database.yaml;\
-	 kubectl apply -f kube/environments/prod/services.yaml;)
+	 sed "s|{{IMAGE_REPO}}|${STARTERKIT_IMAGE_REPO}|;s|{{CURRENT_VERSION}}|${STARTERKIT_CURRENT_VERSION}|" templates/deployments-template.yaml > deployments.yaml;\
+	 kubectl apply -f deployments.yaml;\
+	 kubectl apply -f database.yaml;\
+	 kubectl apply -f services.yaml;)
+
 
 # Request an ssl certificate from letsencrypt
 request-ssl:

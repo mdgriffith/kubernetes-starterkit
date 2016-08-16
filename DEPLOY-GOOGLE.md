@@ -1,4 +1,4 @@
-# WARNING, this guide is untested yet.
+# WARNING, this guide is untested at the moment
 
 
 # Deploying to Google Container engine
@@ -52,11 +52,11 @@ Open the following file:
 
 `/kube/scripts/deployment-envs/set-google-env.sh`
 
-You need to replace `my-google-project` with your  google project name.
+You need to replace `MYGOOGLEPROJECT` with your  google project name.
 
-And replace `context_to_deploy_to` to the google context for your cluster.  You can see your contexts by running `gcloud config view`.
+And replace `CONTEXTTODEPLOYTO` to the google context for your cluster.  You can see your contexts by running `kubectl config view` and looking for the __contexts__ section.
 
-# Finally, Deploy.
+# Deploy
 
 First, commit all changes to your git.  Part of the deployment process is to tag which commit is being deployed.
 

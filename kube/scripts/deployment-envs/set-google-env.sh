@@ -1,4 +1,4 @@
-kubectl config use-context context_to_deploy_to
+kubectl config use-context GOOGLECONTEXT
 eval $(minikube docker-env);
-export STARTERKIT_IMAGE_REPO=gcr.io/my-google-project/;
+export STARTERKIT_IMAGE_REPO=gcr.io/GOOGLEPROJECT/;
 export STARTERKIT_CURRENT_VERSION=latest;
