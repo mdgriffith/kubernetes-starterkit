@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: {{IMAGE_REPO}}nginx-static-proxy:{{CURRENT_VERSION}}
+          image: {IMAGE_REPO}nginx-static-proxy:{NGINX_VERSION}
           volumeMounts:
             - mountPath: /etc/nginx/letsencrypt/
               name: letsencrypt-certificates
@@ -20,7 +20,7 @@ spec:
               name: acme-challenge
               readOnly: true
         - name: letsencrypt
-          image: {{IMAGE_REPO}}letsencrypt-companion:{{CURRENT_VERSION}}
+          image: {IMAGE_REPO}letsencrypt-companion:{LETSENCRYPT_VERSION}
           volumeMounts:
             - mountPath: /letsencrypt/challenges/.well-known/acme-challenge/
               name: acme-challenge
@@ -38,7 +38,7 @@ spec:
             - name: RENEWAL_FREQUENCY
               value: 0 0 1 * *
         - name: flask
-          image: {{IMAGE_REPO}}flask-api:{{CURRENT_VERSION}}
+          image: {IMAGE_REPO}flask-api:{FLASK_VERSION}
           env:
             - name: DATABASE
               value: postgres
