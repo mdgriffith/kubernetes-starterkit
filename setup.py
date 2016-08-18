@@ -1,14 +1,17 @@
 from setuptools import setup
 
 setup(
-    name='yourscript',
+    name='commands',
     version='0.1',
-    py_modules=['yourscript'],
+    py_modules=['commands'],
     install_requires=[
         'Click',
+        'pyyaml',
+        'voluptuous'
     ],
     entry_points='''
         [console_scripts]
-        yourscript=yourscript:cli
+        install=commands:install
+        deploy=commands:deploy
     ''',
 )

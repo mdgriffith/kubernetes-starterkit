@@ -4,51 +4,23 @@ import os
 import os.path
 import getpass
 import yaml
-# libraries: pyyaml, click, voluptuous
 
 
-@click.command()
-@click.argument("config", type=StarterkitConfig(r'kube/deployments/'))
-def install(config):
-    """
-    Set up an initial installation.  This reads a deployment.yaml file from kube/deployments
 
-    This is distinct from `deploy` in that it is run once at the beginning
+class StarterkitConfig(click.ParamType):
 
-    """
-    # Build all images listed in config
-    # We grab the final image names + image version
-    # Sometimes the version is set dynamically within `build`
-    image_names = {}
-    for image in config["deployment"]["images"]:
-        if not "repo" in image:
-            image["repo"] = config["deployment"]["docker-env"].get("repo")
-        image_names.update(build(**image))
+    name = 'starterkit config'
 
-    # Take any templates and replace the following
-    #  * Image names are expanded
-    #  * Current working directory (for hostpath on dev volumes)
-    for template in config["deployment"]["kuberetes-env"]["config-templates"]:
-        format_kube_template(template.template, template.target, PROJECT_ROOT=os.getcwd(), **image_names)
+    def __init__(self, base_dir):
+        self.base_dir = base_dir
 
-    create_session_secret()
-    create_database_credentials()
-    # Apply Kubernetes Files
-    for kube in config["deployment"]["kuberetes-env"]["configs"]:
-        apply_kube_config(kube)
-
-
-@click.command()
-@click.argument("deployment", type=click.Choice(['major', 'minor', 'patch']))
-@click.argument("version_type", type=click.Choice(['major', 'minor', 'patch']))
-def deploy(deployment, version_type):
-    """Deploy"""
-    if not is_git_clean():
-        print "There are uncommitted changes.  Commit them and run deploy again."
-        exit(1)
-    new_version = increment(get_previous_version(), version_type)
-    git_tag(new_version, new_version + " release")
-
+    def convert(self, value, param, ctx):
+        try:
+            with open(os.path.join(self.base_dir, value + ".yaml")) as CONFIG:
+                config = yaml.load(CONFIG.read())
+                return config
+        except IOError:
+            self.fail('There is no {cfg}.yaml config in {base}'.format(cfg=value, base=self.base_dir), param, ctx)
 
 
 # ---------------------------
@@ -123,17 +95,56 @@ def git_tag(tag, message):
     subprocess.call('git push --tags')
 
 
-class StarterkitConfig(click.ParamType):
 
-    name = 'starterkit config'
+# ------------------
+# Commands
+# ------------------
 
-    def __init__(self, base_dir):
-        self.base_dir = base_dir
+@click.command()
+def test():
+    """Example script."""
+    click.echo('TEST')
 
-    def convert(self, value, param, ctx):
-        try:
-            with open(os.path.join(self.base_dir, value + ".yaml")) as CONFIG:
-                config = yaml.load(CONFIG.read())
-                return config
-        except IOError:
-            self.fail('%s config cannot be found' % value, param, ctx)
+
+
+@click.command()
+@click.argument("config", type=StarterkitConfig(r'kube/deployments/'))
+def install(config):
+    """
+    Set up an initial installation.  This reads a deployment.yaml file from kube/deployments
+
+    This is distinct from `deploy` in that it is run once at the beginning
+
+    """
+    # Build all images listed in config
+    # We grab the final image names + image version
+    # Sometimes the version is set dynamically within `build`
+    image_names = {}
+    for image in config["deployment"]["images"]:
+        if not "repo" in image:
+            image["repo"] = config["deployment"]["docker-env"].get("repo", None)
+        image_names.update(build(**image))
+
+    # Take any templates and replace the following
+    #  * Image names are expanded
+    #  * Current working directory (for hostpath on dev volumes)
+    for template in config["deployment"]["kuberetes-env"]["config-templates"]:
+        format_kube_template(template.template, template.target, PROJECT_ROOT=os.getcwd(), **image_names)
+
+    create_session_secret()
+    create_database_credentials()
+    # Apply Kubernetes Files
+    for kube in config["deployment"]["kuberetes-env"]["configs"]:
+        apply_kube_config(kube)
+
+
+@click.command()
+@click.argument("config", type=StarterkitConfig(r'kube/deployments/'))
+@click.argument("version_type", type=click.Choice(['major', 'minor', 'patch']))
+def deploy(config, version_type):
+    """Deploy"""
+    if not is_git_clean():
+        print "There are uncommitted changes.  Commit them and run deploy again."
+        exit(1)
+    new_version = increment(get_previous_version(), version_type)
+    git_tag(new_version, new_version + " release")
