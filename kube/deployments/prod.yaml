@@ -21,7 +21,7 @@ deployment:
     - name: python-dependencies
       location: app/api
       dockerfile: dependencies.Dockerfile
-      tags: 2.7
+      tags: 3.5
     - name: flask-api
       location: app/api
       tags: latest

@@ -72,9 +72,6 @@ Command                | Description
 In the above commands, when `dev` or `prod` is mentioned, those correspond to config files in `/kube/deployments/`.
 
 
-
-
-
 ## Browsing the Database
 
 [PgAdmin](https://www.pgadmin.org/) can be used as a database explorer.  
