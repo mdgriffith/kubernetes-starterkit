@@ -9,29 +9,21 @@ It installs the following:
 ## Prerequisites
 
   * Clone this repo to a local dir.
+  * Install [Google Cloud SDK](https://cloud.google.com/sdk/) _(If you want to deploy to google container engine)_
   * Install [kubectl](http://kubernetes.io/docs/user-guide/prereqs/) _(A command line utility for managing a kubernetes cluster)_
   * Install [minikube](https://github.com/kubernetes/minikube) _(for running kubernetes locally)_
-  * Install [Google Cloud SDK](https://cloud.google.com/sdk/) _(If you want to deploy to google container engine)_
   * Install Python 2.7, Virutalenv, and PIP
 
 
 ## Developing locally
 
-To initially set everything up, create a python virtual environment by running the following on the commandline:
+To initially set everything up, run
 
-`virutalenv env`
+`source activate.sh`
 
-Activate this virtual environemnt.
+This will create a python virtualenv (which allows for the following `install` and `deploy` commands to work) and start a local kubernetes instance using minikube.
 
-`source env/bin/activate`
-
-And install our local commands.  Don't forget the period at the end of this command.
-
-`pip install --editable .`
-
-Now you'll be able to issue commands to the starterkit.  
-
-Run `install dev`.  This will start a kubernetes instance locally using minikube, and configure it to run our app.
+Run `install dev`.  This will build and deploy our app on the minikube.
 
 It will ask you to set a database username and password for Postgres.
 
@@ -50,8 +42,7 @@ When you want to stop developing you can run
 
 Then, when you return to work on this project:
 
-  * `minikube start` - start the minikube machine.
-  * `source env/bin/activate` - activate the python environment.
+  * `source activate.sh` - Turn on minikube and activate our python environment.
 
 
 
