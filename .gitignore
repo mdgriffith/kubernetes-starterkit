@@ -3,3 +3,6 @@
 kube/environments/dev/deployments.yaml
 kube/environments/prod/deployments.yaml
 *.pyc
+env
+*.egg-info
+__pycache__

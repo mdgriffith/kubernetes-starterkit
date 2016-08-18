@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx-static-proxy:latest
+          image: {nginx-static-proxy}
           imagePullPolicy: Never
           volumeMounts:
             - mountPath: /etc/nginx/html/
@@ -26,7 +26,7 @@ spec:
               containerPort: 443
               hostPort: 443
         - name: flask
-          image: flask-api:latest
+          image: {flask-api}
           imagePullPolicy: Never
           volumeMounts:
             - mountPath: /usr/src/app/
@@ -57,10 +57,10 @@ spec:
       volumes:
         - name: static-serve-dir
           hostPath:
-            path: {{REPLACE_ME_WITH_LOCAL_PATH}}/app/nginx/serve/
+            path: {PROJECT_ROOT}/app/nginx/serve/
         - name: flask-src
           hostPath:
-            path: {{REPLACE_ME_WITH_LOCAL_PATH}}/app/api/
+            path: {PROJECT_ROOT}/app/api/
 
 ---
 apiVersion: extensions/v1beta1
