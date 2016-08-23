@@ -7,7 +7,28 @@ import click
 import subprocess
 import getpass
 import yaml
+import voluptuous
+from voluptuous import Required, Optional
 
+
+config_schema = voluptuous.Schema({
+    Required('deployment'): {
+        Required('docker'): { Required('cmd'): str, 
+                              Optional('repo', default=None): str, 
+                              Optional('gcloud-push', default=False): bool 
+                             },
+        Required('kubernetes'): { Required('context'):str
+                                , Required('configs'):[str]
+                                , Optional('config-templates', default=None):[{Required('template'):str, Required('target'):str}]
+                                },
+        Required('images'): [ { Required('name'):str
+                              , Required('location'):str
+                              , Required('tags'):str
+                              , Optional('dockerfile', default=None):str
+                              }
+                            ]
+   }
+ })
 
 class StarterkitConfig(click.ParamType):
 
@@ -20,6 +41,7 @@ class StarterkitConfig(click.ParamType):
         try:
             with open(os.path.join(self.base_dir, value + ".yaml")) as CONFIG:
                 config = yaml.load(CONFIG.read())
+                config_schema(config)
                 return config
         except IOError:
             self.fail('There is no {cfg}.yaml config in {base}'.format(
@@ -130,8 +152,9 @@ def set_docker(cmd):
 
 
 @click.command()
-def test():
-    print "testing!"
+@click.argument("config", type=StarterkitConfig(r'kube/deployments/'))
+def parse(config):
+    print "Deployment file looks good!"
 
 
 @click.command()
@@ -143,8 +166,8 @@ def install(config):
     This is distinct from `deploy` in that it is run once at the beginning
 
     """
-    set_kubernetes_context(config["deployment"]["kuberetes-env"]["context"])
-    set_docker(config["deployment"]["docker-env"]["cmd"])
+    set_kubernetes_context(config["deployment"]["kubernetes"]["context"])
+    set_docker(config["deployment"]["docker"]["cmd"])
 
     # # Build all images listed in config
     # # We grab the final image names + image version
@@ -153,10 +176,10 @@ def install(config):
     for image in config["deployment"]["images"]:
         if not "repo" in image:
             image["repo"] = config["deployment"][
-                "docker-env"].get("repo", None)
+                "docker"].get("repo", None)
         image_names.update(build(**image))
 
-    if config["deployment"]["docker-env"].get("gcloud-push", False):
+    if config["deployment"]["docker"].get("gcloud-push", False):
         print "Pushing images to gcloud"
         for name, full_name in image_names.items():
             subprocess.call(
@@ -165,7 +188,7 @@ def install(config):
     # Take any templates and replace the following
     #  * Image names are expanded
     #  * Current working directory (for hostpath on dev volumes)
-    for template in config["deployment"]["kuberetes-env"]["config-templates"]:
+    for template in config["deployment"]["kubernetes"]["config-templates"]:
         format_kube_template(template["template"], template[
                              "target"], PROJECT_ROOT=os.getcwd(), **image_names)
 
@@ -173,7 +196,7 @@ def install(config):
     create_database_credentials()
     create_empty_certificate_secret()
     # Apply Kubernetes Files
-    for kube in config["deployment"]["kuberetes-env"]["configs"]:
+    for kube in config["deployment"]["kubernetes"]["configs"]:
         apply_kube_config(kube)
 
 

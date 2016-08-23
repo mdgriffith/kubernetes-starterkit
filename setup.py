@@ -13,5 +13,6 @@ setup(
         [console_scripts]
         install=commands:install
         deploy=commands:deploy
+        parse=commands:parse
     ''',
 )

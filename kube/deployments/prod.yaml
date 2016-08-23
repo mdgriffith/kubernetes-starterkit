@@ -1,8 +1,9 @@
 deployment:
-  docker-env:
+  docker:
     cmd: minikube docker-env
     repo: gcr.io/GOOGLE_PROJECT
-  kuberetes-env:
+    gcloud-push: true
+  kubernetes:
     context: GOOGLE_CONTEXT
     configs:
       - kube/environments/prod/services.yaml
@@ -21,7 +22,7 @@ deployment:
     - name: python-dependencies
       location: app/api
       dockerfile: dependencies.Dockerfile
-      tags: 3.5
+      tags: "3.5"
     - name: flask-api
       location: app/api
       tags: latest
