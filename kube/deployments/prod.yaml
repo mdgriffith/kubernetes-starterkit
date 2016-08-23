@@ -1,6 +1,6 @@
 deployment:
   docker-env:
-    cmd: eval $(minikube docker-env)
+    cmd: minikube docker-env
     repo: gcr.io/GOOGLE_PROJECT
   kuberetes-env:
     context: GOOGLE_CONTEXT
