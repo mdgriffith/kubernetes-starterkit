@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: {IMAGE_REPO}nginx-static-proxy:{NGINX_VERSION}
+          image: {nginx-static-proxy}
           volumeMounts:
             - mountPath: /etc/nginx/letsencrypt/
               name: letsencrypt-certificates
@@ -20,7 +20,7 @@ spec:
               name: acme-challenge
               readOnly: true
         - name: letsencrypt
-          image: {IMAGE_REPO}letsencrypt-companion:{LETSENCRYPT_VERSION}
+          image: {letsencrypt-companion}
           volumeMounts:
             - mountPath: /letsencrypt/challenges/.well-known/acme-challenge/
               name: acme-challenge
@@ -30,7 +30,7 @@ spec:
             - name: DOMAINS
               value: MYDOMAIN.COM
             - name: ACCEPT_TOS
-              value: yes
+              value: "yes"
             - name: LETSENCRYPT_ENDPOINT
               value: https://acme-staging.api.letsencrypt.org/directory
             - name: SECRET_NAME
@@ -38,7 +38,7 @@ spec:
             - name: RENEWAL_FREQUENCY
               value: 0 0 1 * *
         - name: flask
-          image: {IMAGE_REPO}flask-api:{FLASK_VERSION}
+          image: {flask-api}
           env:
             - name: DATABASE
               value: postgres
@@ -62,4 +62,4 @@ spec:
           secret:
               secretName: letsencrypt-certificates
         - name: acme-challenge
-          emptyDir: {}
+          emptyDir: {{}}

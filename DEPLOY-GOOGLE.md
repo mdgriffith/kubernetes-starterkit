@@ -50,11 +50,11 @@ Where machine-types are [listed here](https://cloud.google.com/compute/docs/mach
 
 Open the following file:
 
-`/kube/scripts/deployment-envs/set-google-env.sh`
+`/kube/scripts/deployments/prod.yaml`
 
-You need to replace `MYGOOGLEPROJECT` with your  google project name.
+You need to replace `GOOGLE_PROJECT` with your google project name.
 
-And replace `CONTEXTTODEPLOYTO` to the google context for your cluster.  You can see your contexts by running `kubectl config view` and looking for the __contexts__ section.
+And replace `GOOGLE_CONTEXT` to the google context for your cluster.  You can see your contexts by running `kubectl config view` and looking for the __contexts__ section.
 
 # Deploy
 
