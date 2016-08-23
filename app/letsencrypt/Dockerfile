@@ -12,4 +12,4 @@ WORKDIR /letsencrypt/
 
 EXPOSE 80
 
-CMD cron
+ENTRYPOINT ["echo", "certbot ready"]
