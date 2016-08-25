@@ -10,6 +10,5 @@ COPY scripts /letsencrypt/
 
 WORKDIR /letsencrypt/
 
-EXPOSE 80
 
-ENTRYPOINT ["echo", "certbot ready"]
+ENTRYPOINT ["cron", "-f"]

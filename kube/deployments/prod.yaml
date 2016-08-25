@@ -1,28 +1,29 @@
 deployment:
+  # require-clean-git: true
   docker:
     cmd: minikube docker-env
-    repo: gcr.io/GOOGLE_PROJECT
+    repo: gcr.io/lunar-alpha-93213
     gcloud-push: true
   kubernetes:
-    context: GOOGLE_CONTEXT
+    context: gke_lunar-alpha-93213_us-east1-c_starterkit-experiment
     configs:
       - kube/environments/prod/services.yaml
+      - kube/environments/prod/volumes.yaml
       - kube/environments/prod/deployments.yaml
-      - kube/environments/prod/database.yaml
     config-templates:
       - template: kube/environments/prod/templates/deployments.yaml
         target: kube/environments/prod/deployments.yaml
   images:
     - name: nginx-static-proxy
       location: app/nginx
-      tags: latest
+      tags: "1.0.1"
     - name: letsencrypt-companion
       location: app/letsencrypt
-      tags: latest
+      tags: "1.0.1"
     - name: python-dependencies
       location: app/api
       dockerfile: dependencies.Dockerfile
       tags: "3.5"
     - name: flask-api
       location: app/api
-      tags: latest
+      tags: "1.0.1"

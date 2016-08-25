@@ -13,6 +13,9 @@ deployment:
     - name: nginx-static-proxy
       location: app/nginx
       tags: latest
+    - name: letsencrypt-companion
+      location: app/letsencrypt
+      tags: "1.0"
     - name: python-dependencies
       location: app/api
       dockerfile: dependencies.Dockerfile

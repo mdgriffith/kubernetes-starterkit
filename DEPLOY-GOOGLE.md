@@ -32,7 +32,7 @@ This command to view what the current default project is
 
 And the following to set a new default project.
 
-`gcloud config set project my-project-name`
+`gcloud config set project MY_PROJECT_NAME`
 
 
 # Create a New Cluster on Google Container Engine
@@ -62,4 +62,4 @@ First, commit all changes to your git.  Part of the deployment process is to tag
 
 Then run:
 
-`make deploy`
+`install prod`

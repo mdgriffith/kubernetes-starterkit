@@ -12,6 +12,9 @@ spec:
       containers:
         - name: nginx
           image: {nginx-static-proxy}
+          resources:
+            limits:
+              cpu: 90m
           volumeMounts:
             - mountPath: /etc/nginx/letsencrypt/
               name: letsencrypt-certificates
@@ -21,6 +24,9 @@ spec:
               readOnly: true
         - name: letsencrypt
           image: {letsencrypt-companion}
+          resources:
+            limits:
+              cpu: 10m
           volumeMounts:
             - mountPath: /letsencrypt/challenges/.well-known/acme-challenge/
               name: acme-challenge
@@ -39,6 +45,9 @@ spec:
               value: 0 0 1 * *
         - name: flask
           image: {flask-api}
+          resources:
+            limits:
+              cpu: 100m
           env:
             - name: DATABASE
               value: postgres
@@ -63,3 +72,43 @@ spec:
               secretName: letsencrypt-certificates
         - name: acme-challenge
           emptyDir: {{}}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: database
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+        - name: postgres
+          image: postgres
+          resources:
+            limits:
+              cpu: 50m
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: pg-data
+      volumes:
+        - name: pg-data
+          emptyDir: {{}}
+

@@ -56,7 +56,8 @@ Command                | Description
 `minikube start`       | Start the minikube
 `minikube delete`      | Delete local kubernetes instance
 `minikube dashboard`   | Get the address of the Kubernetes Dashboard for local.
-`install dev`          | Install a dev environment locally.  You should only need to do this once.
+`source activate.sh`   | Setup python so that the below commands can work
+`deploy dev`           | Deploy a dev environment. 
 `logs dev`             | Stream the app(specifically Python/flask) logs to the terminal
 `deploy prod`          | Deploy to google container engine.
 

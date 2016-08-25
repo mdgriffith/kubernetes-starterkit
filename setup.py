@@ -14,5 +14,8 @@ setup(
         install=commands:install
         deploy=commands:deploy
         parse=commands:parse
+        apply=commands:apply
+        build=commands:build
+        push=commands:push
     ''',
 )

@@ -9,10 +9,12 @@ import getpass
 import yaml
 import voluptuous
 from voluptuous import Required, Optional
+import time
 
 
 config_schema = voluptuous.Schema({
     Required('deployment'): {
+        Optional('require-clean-git'): bool,
         Required('docker'): { Required('cmd'): str, 
                               Optional('repo', default=None): str, 
                               Optional('gcloud-push', default=False): bool 
@@ -42,6 +44,11 @@ class StarterkitConfig(click.ParamType):
             with open(os.path.join(self.base_dir, value + ".yaml")) as CONFIG:
                 config = yaml.load(CONFIG.read())
                 config_schema(config)
+                if config["deployment"]["kubernetes"]["context"] == "gcr.io/GOOGLE_PROJECT":
+                    raise Exception('Config', 'Please set the GOOGLE_PROJECT repo in ' + os.path.join(self.base_dir, value + ".yaml"))
+                if config["deployment"]["docker"].get("repo", None) == "GOOGLE_CONTEXT":
+                    raise Exception('Config', 'Please set the GOOGLE_CONTEXT to deploy to in ' + os.path.join(self.base_dir, value + ".yaml"))
+                config["deployment"]['require-clean-git'] = config["deployment"].get('require-clean-git', False)
                 return config
         except IOError:
             self.fail('There is no {cfg}.yaml config in {base}'.format(
@@ -51,7 +58,14 @@ class StarterkitConfig(click.ParamType):
 # ---------------------------
 # Build Images
 # ---------------------------
-def build(name, location, tags, repo=None, dockerfile=None):
+def get_image_names(config):
+    if repo is None:
+        repo = "library"
+    full_image_name = "{repo}/{image_name}:{version}".format(
+        repo=repo, image_name=name, version=tags)
+    return {name: full_image_name}
+
+def build_image(name, location, tags, repo=None, dockerfile=None):
     if dockerfile is None:
         dockerfile = "Dockerfile"
     if repo is None:
@@ -62,6 +76,22 @@ def build(name, location, tags, repo=None, dockerfile=None):
     subprocess.call("docker build -t {full_image_name} -f {dockerfile} {location}".format(
         full_image_name=full_image_name, location=location, dockerfile=full_dockerfile), shell=True)
     return {name: full_image_name}
+
+def build_all_images(config):
+    image_names = {}
+    for image in config["deployment"]["images"]:
+        if not "repo" in image:
+            image["repo"] = config["deployment"][
+                "docker"].get("repo", None)
+        image_names.update(build_image(**image))
+    return image_names
+
+def push_images(image_names):
+    print "Pushing images to gcloud"
+    for name, full_name in image_names.items():
+        subprocess.call(
+            "gcloud docker push {image}".format(image=full_name), shell=True)
+
 
 
 def format_kube_template(template, target, **substitutions):
@@ -79,22 +109,33 @@ def apply_kube_config(kube):
 
 
 def create_session_secret():
-    secret = "".join(
-        [random.choice(string.ascii_letters + string.digits) for n in xrange(64)])
-    subprocess.call(
-        "kubectl create secret generic session-secret --from-literal=session-secret={SECRET}".format(SECRET=secret), shell=True)
+    if not secret_exists("session-secret"):
+        secret = "".join(
+            [random.choice(string.ascii_letters + string.digits) for n in xrange(64)])
+        subprocess.call(
+            "kubectl create secret generic session-secret --from-literal=session-secret={SECRET}".format(SECRET=secret), shell=True)
 
 
 def create_database_credentials():
-    username = getpass.getpass("Postgres username?")
-    password = getpass.getpass("Postgres password?")
-    subprocess.call("kubectl create secret generic postgres-credentials --from-literal=username={username} --from-literal=password={password}".format(
-        username=username, password=password), shell=True)
+    if not secret_exists("postgres-credentials"):
+        username = getpass.getpass("Postgres username?")
+        password = getpass.getpass("Postgres password?")
+        subprocess.call("kubectl create secret generic postgres-credentials --from-literal=username={username} --from-literal=password={password}".format(
+            username=username, password=password), shell=True)
 
 
 def create_empty_certificate_secret():
-    subprocess.call(
-        "kubectl create secret generic letsencrypt-certificates --from-literal=status=empty", shell=True)
+    if not secret_exists("letsencrypt-certificates"):
+        subprocess.call(
+            "kubectl create secret generic letsencrypt-certificates --from-literal=status=empty", shell=True)
+
+
+def secret_exists(secret_name):
+    running = subprocess.call("kubectl get secrets {secret_name}".format(secret_name=secret_name), shell=True, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
+    if running == 0:
+        return True
+    else:
+        return False
 
 
 def schedule_cert_renewal():
@@ -159,31 +200,25 @@ def parse(config):
 
 @click.command()
 @click.argument("config", type=StarterkitConfig(r'kube/deployments/'))
-def install(config):
-    """
-    Set up an initial installation.  This reads a deployment.yaml file from kube/deployments
+def deploy(config):
+    """Deploy"""
 
-    This is distinct from `deploy` in that it is run once at the beginning
-
-    """
+    if config['deployment']['require-clean-git'] and not is_git_clean():
+        print "There are uncommitted changes.  Commit them and run deploy again."
+        exit(1)
+    # new_version = increment(get_previous_version(), version_type)
+    # git_tag(new_version, new_version + " release")
     set_kubernetes_context(config["deployment"]["kubernetes"]["context"])
     set_docker(config["deployment"]["docker"]["cmd"])
 
     # # Build all images listed in config
     # # We grab the final image names + image version
     # # Sometimes the version is set dynamically within `build`
-    image_names = {}
-    for image in config["deployment"]["images"]:
-        if not "repo" in image:
-            image["repo"] = config["deployment"][
-                "docker"].get("repo", None)
-        image_names.update(build(**image))
+    image_names = build_all_images(config)
+   
 
     if config["deployment"]["docker"].get("gcloud-push", False):
-        print "Pushing images to gcloud"
-        for name, full_name in image_names.items():
-            subprocess.call(
-                "gcloud docker push {image}".format(image=full_name), shell=True)
+        push_images(image_names)
 
     # Take any templates and replace the following
     #  * Image names are expanded
@@ -192,24 +227,39 @@ def install(config):
         format_kube_template(template["template"], template[
                              "target"], PROJECT_ROOT=os.getcwd(), **image_names)
 
+    # These only create the secrets if necessary
     create_session_secret()
     create_database_credentials()
     create_empty_certificate_secret()
+
+
+    # Apply Kubernetes Files
+    for kube in config["deployment"]["kubernetes"]["configs"]:
+        apply_kube_config(kube)
+        time.sleep(30)
+
+@click.command()
+@click.argument("config", type=StarterkitConfig(r'kube/deployments/'))
+def apply(config):
+    set_kubernetes_context(config["deployment"]["kubernetes"]["context"])
+    set_docker(config["deployment"]["docker"]["cmd"])
     # Apply Kubernetes Files
     for kube in config["deployment"]["kubernetes"]["configs"]:
         apply_kube_config(kube)
 
+@click.command()
+@click.argument("config", type=StarterkitConfig(r'kube/deployments/'))
+def build(config):
+    set_kubernetes_context(config["deployment"]["kubernetes"]["context"])
+    set_docker(config["deployment"]["docker"]["cmd"])
+    build_all_images(config)
 
 @click.command()
 @click.argument("config", type=StarterkitConfig(r'kube/deployments/'))
-@click.argument("version_type", type=click.Choice(['major', 'minor', 'patch']))
-def deploy(config, version_type):
-    """Deploy"""
-    if not is_git_clean():
-        print "There are uncommitted changes.  Commit them and run deploy again."
-        exit(1)
-    new_version = increment(get_previous_version(), version_type)
-    git_tag(new_version, new_version + " release")
+def push(config):
+    image_names = get_image_names(config)
+    if config["deployment"]["docker"].get("gcloud-push", False):
+        push_images(image_names)
 
 
 @click.command()
