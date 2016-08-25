@@ -110,5 +110,6 @@ spec:
               name: pg-data
       volumes:
         - name: pg-data
-          emptyDir: {{}}
+          persistentVolumeClaim:
+            claimName: pg-data-claim
 

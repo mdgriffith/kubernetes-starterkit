@@ -15,9 +15,18 @@ import time
 config_schema = voluptuous.Schema({
     Required('deployment'): {
         Optional('require-clean-git'): bool,
+        Optional('gcloud'): { Optional('persistent-disk'): { Required('name'): str,
+                                                             Required('size'): str
+                                                            }, 
+                              Optional('cluster'): { Required('name'): str,
+                                                     Required('machine-type'): str,
+                                                     Required('zone'): str,
+                                                     Required('num-nodes'): str
+                                                    },
+                              Optional('push-images', default=False): bool 
+                             },
         Required('docker'): { Required('cmd'): str, 
-                              Optional('repo', default=None): str, 
-                              Optional('gcloud-push', default=False): bool 
+                              Optional('repo', default=None): str
                              },
         Required('kubernetes'): { Required('context'):str
                                 , Required('configs'):[str]
@@ -31,6 +40,8 @@ config_schema = voluptuous.Schema({
                             ]
    }
  })
+
+
 
 class StarterkitConfig(click.ParamType):
 
@@ -53,6 +64,26 @@ class StarterkitConfig(click.ParamType):
         except IOError:
             self.fail('There is no {cfg}.yaml config in {base}'.format(
                 cfg=value, base=self.base_dir), param, ctx)
+
+
+#---------------------------
+# gcloud operations
+#---------------------------
+
+def create_cluster_if_doesnt_exist(cluster):
+    running = subprocess.call("gcloud container clusters describe {name} --zone {zone}".format(name=cluster["name"], zone=cluster["zone"]), shell=True, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
+    if running == 0:
+        return True
+    else:
+        subprocess.call("gcloud container clusters create {name} --machine-type {machine_type} --zone {zone} --num-nodes {num_nodes}".format(**cluster), shell=True)
+
+
+def create_disk_if_doesnt_exist(disk):
+    running = subprocess.call("gcloud compute disks describe {name} --zone {zone}".format(name=disk["name"], zone=disk["zone"]), shell=True, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
+    if running == 0:
+        return True
+    else:
+        subprocess.call("gcloud compute disks create --size={size} --zone={zone} {name}".format(**disk), shell=True)
 
 
 # ---------------------------
@@ -187,6 +218,19 @@ def set_docker(cmd):
             (key, _, value) = line.lstrip('export ').partition("=")
             os.environ[key] = value.strip('"')
 
+
+def get(config, keys, default):
+    """ Get a nested value if present
+    """
+    current = config
+    for key in keys:
+        if key in current:
+            current = current[key]
+        else:
+            return default
+    return current
+
+
 # ------------------
 # Commands
 # ------------------
@@ -203,7 +247,7 @@ def parse(config):
 def deploy(config):
     """Deploy"""
 
-    if config['deployment']['require-clean-git'] and not is_git_clean():
+    if get(config, ['deployment','require-clean-git'], False) and not is_git_clean():
         print "There are uncommitted changes.  Commit them and run deploy again."
         exit(1)
     # new_version = increment(get_previous_version(), version_type)
@@ -217,7 +261,7 @@ def deploy(config):
     image_names = build_all_images(config)
    
 
-    if config["deployment"]["docker"].get("gcloud-push", False):
+    if get(config, ["deployment","gcloud", "push-images"], False):
         push_images(image_names)
 
     # Take any templates and replace the following
@@ -258,7 +302,7 @@ def build(config):
 @click.argument("config", type=StarterkitConfig(r'kube/deployments/'))
 def push(config):
     image_names = get_image_names(config)
-    if config["deployment"]["docker"].get("gcloud-push", False):
+    if get(config, ["deployment","gcloud", "push-images"], False):
         push_images(image_names)
 
 

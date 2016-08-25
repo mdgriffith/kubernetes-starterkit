@@ -3,7 +3,17 @@ deployment:
   docker:
     cmd: minikube docker-env
     repo: gcr.io/lunar-alpha-93213
-    gcloud-push: true
+  gcloud:
+    push-images: true
+    persistent-disk: 
+      name: postgres-data-disk
+      size: 10GB
+      zone: us-east1-c
+    cluster:
+      name: starterkit-experiment
+      machine-type: n1-standard-1
+      zone: us-east1-c
+      num-nodes: 1
   kubernetes:
     context: gke_lunar-alpha-93213_us-east1-c_starterkit-experiment
     configs:

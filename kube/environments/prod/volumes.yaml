@@ -10,7 +10,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   gcePersistentDisk:
-    pdName: "pg-data-disk"
+    pdName: "postgres-database"
     fsType: "ext4"
 ---
 kind: PersistentVolumeClaim
