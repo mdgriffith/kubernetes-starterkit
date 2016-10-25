@@ -2,7 +2,6 @@ import string
 import random
 import os
 import os.path
-
 import click
 import subprocess
 import getpass
@@ -14,7 +13,7 @@ import time
 
 config_schema = voluptuous.Schema({
     Required('deployment'): {
-        Optional('require-clean-git'): bool,
+        Optional('git'): {Optional('require-clean'):bool},
         Optional('gcloud'): { Optional('persistent-disk'): { Required('name'): str,
                                                              Required('size'): str
                                                             }, 
@@ -26,18 +25,19 @@ config_schema = voluptuous.Schema({
                               Optional('push-images', default=False): bool 
                              },
         Required('docker'): { Required('cmd'): str, 
-                              Optional('repo', default=None): str
+                              Optional('repo', default=None): str,
+                              Required('images'): [ { Required('name'):str
+                                      , Required('location'):str
+                                      , Required('tags'):str
+                                      , Optional('dockerfile', default=None):str
+                                      }
+                                    ]
                              },
         Required('kubernetes'): { Required('context'):str
                                 , Required('configs'):[str]
                                 , Optional('config-templates', default=None):[{Required('template'):str, Required('target'):str}]
                                 },
-        Required('images'): [ { Required('name'):str
-                              , Required('location'):str
-                              , Required('tags'):str
-                              , Optional('dockerfile', default=None):str
-                              }
-                            ]
+       
    }
  })
 
@@ -110,7 +110,7 @@ def build_image(name, location, tags, repo=None, dockerfile=None):
 
 def build_all_images(config):
     image_names = {}
-    for image in config["deployment"]["images"]:
+    for image in config["deployment"]["docker"]["images"]:
         if not "repo" in image:
             image["repo"] = config["deployment"][
                 "docker"].get("repo", None)
@@ -309,9 +309,12 @@ def push(config):
 @click.command()
 @click.argument("config", type=StarterkitConfig(r'kube/deployments/'))
 def logs(config):
-    print ""
-    command = "kubectl logs POD --container flask-api --follow"
-
+    pod = subprocess.check_output('kubectl get pods -l "app=api" -o name', shell=True)
+    if pod == "":
+        print "There is no pod running in this environment.  You may need to deploy first."
+        exit(1)
+    pod_name = pod.split("/")[1].strip()
+    subprocess.call("kubectl logs {pod} --container flask --follow".format(pod=pod_name), shell=True)
 
 # @click.command()
 # @click.argument("config", type=StarterkitConfig(r'kube/deployments/'))

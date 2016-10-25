@@ -11,11 +11,11 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        install=commands:install
         deploy=commands:deploy
         parse=commands:parse
         apply=commands:apply
         build=commands:build
+        logs=commands:logs
         push=commands:push
     ''',
 )

@@ -1,6 +1,20 @@
 deployment:
   docker:
     cmd: minikube docker-env
+    images:
+      - name: nginx-static-proxy
+        location: app/nginx
+        tags: latest
+      - name: letsencrypt-companion
+        location: app/letsencrypt
+        tags: "1.0"
+      - name: python-dependencies
+        location: app/api
+        dockerfile: dependencies.Dockerfile
+        tags: "3.5"
+      - name: flask-api
+        location: app/api
+        tags: latest
   kubernetes:
     context: minikube
     configs:
@@ -9,17 +23,4 @@ deployment:
     config-templates:
       - template: kube/environments/dev/templates/deployments.yaml
         target: kube/environments/dev/deployments.yaml
-  images:
-    - name: nginx-static-proxy
-      location: app/nginx
-      tags: latest
-    - name: letsencrypt-companion
-      location: app/letsencrypt
-      tags: "1.0"
-    - name: python-dependencies
-      location: app/api
-      dockerfile: dependencies.Dockerfile
-      tags: "3.5"
-    - name: flask-api
-      location: app/api
-      tags: latest
+  

@@ -1,8 +1,23 @@
 deployment:
-  # require-clean-git: true
+  # git:
+  #   require-clean: true
   docker:
     cmd: minikube docker-env
     repo: gcr.io/lunar-alpha-93213
+    images:
+      - name: nginx-static-proxy
+        location: app/nginx
+        tags: "1.0.1"
+      - name: letsencrypt-companion
+        location: app/letsencrypt
+        tags: "1.0.1"
+      - name: python-dependencies
+        location: app/api
+        dockerfile: dependencies.Dockerfile
+        tags: "3.5"
+      - name: flask-api
+        location: app/api
+        tags: "1.0.1"
   gcloud:
     push-images: true
     persistent-disk: 
@@ -23,17 +38,4 @@ deployment:
     config-templates:
       - template: kube/environments/prod/templates/deployments.yaml
         target: kube/environments/prod/deployments.yaml
-  images:
-    - name: nginx-static-proxy
-      location: app/nginx
-      tags: "1.0.1"
-    - name: letsencrypt-companion
-      location: app/letsencrypt
-      tags: "1.0.1"
-    - name: python-dependencies
-      location: app/api
-      dockerfile: dependencies.Dockerfile
-      tags: "3.5"
-    - name: flask-api
-      location: app/api
-      tags: "1.0.1"
+  
